@@ -23,7 +23,6 @@ router.post('/', async (req, res) => {
   res.send(resource);
 });
 
-
 router.get('/:id', async (req, res) => {
   const resource = database.findResourcesBy('id', req.params.id);
 

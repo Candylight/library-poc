@@ -20,7 +20,6 @@ router.post('/', async (req, res) => {
   res.send(type);
 });
 
-
 router.get('/:id', async (req, res) => {
   const type = database.findTypesBy('id', req.params.id);
 

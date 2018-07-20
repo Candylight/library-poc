@@ -20,7 +20,6 @@ router.post('/', async (req, res) => {
   res.send(category);
 });
 
-
 router.get('/:id', async (req, res) => {
   const category = database.findCategoriesBy('id', req.params.id);
 

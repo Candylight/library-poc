@@ -73,10 +73,10 @@ typings/
 .serverless
 
 # Database
-/database
+database/*
 
 # Server Configuration
-/bin
+bin/*
 
 # PHPStorm
 /.idea

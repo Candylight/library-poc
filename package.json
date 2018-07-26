@@ -6,6 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@slack/client": "^4.3.1",
+    "@slack/events-api": "^1.0.1",
+    "@slack/interactive-messages": "^0.4.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",

@@ -8,11 +8,26 @@ const categoriesRouter = require('./routes/categories');
 const typesRouter = require('./routes/types');
 const resourcesRouter = require('./routes/resources');
 
+const bodyParser = require('body-parser');
 const app = express();
+app.use(bodyParser.json());
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+const config = require('./config/slack');
+const appToken = config.config.slack.app;
+const WebClient = require('@slack/client').WebClient;
+const api = new WebClient(appToken);
+const verificationToken = config.config.slack.verification;
+
+// EVENT API
+const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
+const slackEvents = createSlackEventAdapter(verificationToken);
+
+// INTERACTIVE MESSAGES API
+const { createMessageAdapter } = require('@slack/interactive-messages');
+const slackMessages = createMessageAdapter(verificationToken);
+
+app.use('/slack/events', slackEvents.expressMiddleware());
+app.use('/slack/actions', slackMessages.expressMiddleware());
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -24,9 +39,8 @@ app.use('/categories', categoriesRouter);
 app.use('/types', typesRouter);
 app.use('/resources', resourcesRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    next(createError(404));
+app.post('/commands/share', function (req, res) {
+  console.log(req);
 });
 
 // error handler

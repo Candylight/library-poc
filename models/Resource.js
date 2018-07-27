@@ -20,7 +20,7 @@ Resource.prototype.sanitize = function (data) {
         name: null,
         description: null,
         url: null,
-        category: null,
+        categories: [],
         type: null,
         user: null,
         views: 0

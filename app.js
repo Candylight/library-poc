@@ -1,8 +1,8 @@
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const command = require('./components/command')
 
 const categoriesRouter = require('./routes/categories');
 const typesRouter = require('./routes/types');
@@ -40,7 +40,9 @@ app.use('/types', typesRouter);
 app.use('/resources', resourcesRouter);
 
 app.post('/commands/share', function (req, res) {
-  console.log(req);
+  command.handleCommandRequest(req.body, function (err, callback) {
+    res.status(200).send();
+  });
 });
 
 // error handler

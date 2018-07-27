@@ -15,10 +15,11 @@ router.post('/', async (req, res) => {
     name: req.body.name,
     description: req.body.description,
     url: req.body.url,
-    category: req.body.category,
+    categories: req.body.categories,
+    user: req.body.user,
     type: req.body.type
   });
-  resource = database.setResource(resource);
+  database.setResource(resource);
 
   res.send(resource);
 });

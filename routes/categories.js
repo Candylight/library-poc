@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
     name: req.body.name,
     description: req.body.description,
   });
-  category = database.setCategory(category);
+  database.setCategory(category);
 
   res.send(category);
 });

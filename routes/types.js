@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
     name: req.body.name,
     description: req.body.description,
   });
-  type = database.setType(type);
+  database.setType(type);
 
   res.send(type);
 });

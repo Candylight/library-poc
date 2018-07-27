@@ -1,22 +1,12 @@
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const command = require('./components/command')
+const config = require('./config/slack');
+const verificationToken = config.config.slack.verification;
+const command = require('./components/command');
+const bot = require('./components/bot');
+const step = require('./components/step');
 
 const categoriesRouter = require('./routes/categories');
 const typesRouter = require('./routes/types');
 const resourcesRouter = require('./routes/resources');
-
-const bodyParser = require('body-parser');
-const app = express();
-app.use(bodyParser.json());
-
-const config = require('./config/slack');
-const appToken = config.config.slack.app;
-const WebClient = require('@slack/client').WebClient;
-const api = new WebClient(appToken);
-const verificationToken = config.config.slack.verification;
 
 // EVENT API
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
@@ -26,24 +16,102 @@ const slackEvents = createSlackEventAdapter(verificationToken);
 const { createMessageAdapter } = require('@slack/interactive-messages');
 const slackMessages = createMessageAdapter(verificationToken);
 
-app.use('/slack/events', slackEvents.expressMiddleware());
-app.use('/slack/actions', slackMessages.expressMiddleware());
+// Initialize an Express application
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+app.use('/slack/events', slackEvents.expressMiddleware());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use('/slack/actions', slackMessages.expressMiddleware());
 
 app.use('/categories', categoriesRouter);
 app.use('/types', typesRouter);
 app.use('/resources', resourcesRouter);
 
 app.post('/commands/share', function (req, res) {
-  command.handleCommandRequest(req.body, function (err, callback) {
-    res.status(200).send();
-  });
+    command.handleCommandRequest(req.body, function (err, callback) {
+        res.status(200).send();
+    });
 });
+
+slackEvents.on('message', (event) => {
+    if (event.username === 'hackathonbot' || event.subtype === 'bot_message' || (event.hasOwnProperty('previous_message') && event.previous_message.subtype === 'bot_message')) {
+        return processMessageFromBot(event);
+    } else {
+        return processMessageFromUser(event);
+    }
+});
+
+slackMessages.action('', (payload, respond) => {
+    const actionType = payload.actions[0].type;
+    const settings = getStepSettings(actionType, payload);
+    return executeStepMethod(settings, payload);
+});
+
+/**
+ * Get step settings (next step, method and options)
+ *
+ * @param actionType
+ * @param payload
+ * @returns {*}
+ */
+function getStepSettings (actionType, payload) {
+    switch (actionType) {
+    case 'select':
+        let value = null;
+        value = ifJson(payload.actions[0].selected_options[0].value);
+        return value;
+    case 'button':
+    default:
+        return JSON.parse(payload.actions[0].value);
+    }
+}
+
+/**
+ * Check if action value is a stringify json
+ *
+ * @param value
+ * @returns {*}
+ */
+function ifJson (value) {
+    try {
+        return JSON.parse(value);
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
+ * Dynamically execute a method in components/stepHelper.js to each scenario step (methods, nextStep and options are included in the paypload value)
+ *
+ * @param settings
+ * @param payload
+ */
+function executeStepMethod (settings, payload) {
+    const nextStep = settings.next;
+    const stepMethod = settings.method;
+    const args = [
+        {
+            'payload': payload,
+            'nextStep': nextStep
+        }
+    ];
+
+    return step[stepMethod].apply(this, args);
+}
+
+function processMessageFromUser(event) {
+    if (event.channel.charAt(0) === 'D') {
+        return bot.startConversationWithBot(event);
+    }
+}
+
+function processMessageFromBot(event) {
+}
+
+slackEvents.on('error', console.error);
 
 // error handler
 app.use(function(err, req, res, next) {

@@ -47,6 +47,7 @@ slackEvents.on('message', (event) => {
 slackMessages.action('', (payload, respond) => {
     const actionType = payload.actions[0].type;
     const settings = getStepSettings(actionType, payload);
+
     return executeStepMethod(settings, payload);
 });
 

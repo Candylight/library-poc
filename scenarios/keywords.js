@@ -8,14 +8,10 @@ exports.settings = {
             'attachment_type': 'default',
             'actions': [
                 {
-                    'name': 'menu',
+                    'name': 'keywords',
                     'text': 'Select keywords',
                     'type': 'select',
                     'options': [],
-                    'value': JSON.stringify({
-                        next: 'menu',
-                        method: 'searchByKeywords'
-                    })
                 },
             ]
         }

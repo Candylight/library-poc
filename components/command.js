@@ -4,6 +4,10 @@ const instance = axios.create({
     baseURL: 'http://127.0.0.1:3000'
 });
 const _ = require('lodash');
+const config = require('../config/slack');
+const appToken = config.config.slack.app;
+const WebClient = require('@slack/client').WebClient;
+const api = new WebClient(appToken);
 
 exports.handleCommandRequest = function (request, callback) {
     const content = request.text.split(' ');
@@ -52,6 +56,8 @@ exports.handleCommandRequest = function (request, callback) {
         new Promise((resolve, reject)=> {
             let resourceRequest = database.findResourcesBy('url', link);
             if (resourceRequest.length > 0) {
+                api.chat.postMessage(user, `Sorry <@${user}> but your link ${resourceRequest[0].url} has already been posted by <@${resourceRequest[0].user}>. Try to check <#CBZFQ2YAZ>.`, function(err, res) {
+                });
                 resolve(resourceRequest[0]);
             } else {
                 instance.post('/resources' ,
@@ -68,6 +74,8 @@ exports.handleCommandRequest = function (request, callback) {
                     .catch(function (error) {
                         reject(error);
                     });
+                api.chat.postMessage('CBZFQ2YAZ', `A new *${type}* link has been shared by <@${user}>: ${link} related to \`${keywords.join('/')}\``, function(err, res) {
+                });
             }
         });
 

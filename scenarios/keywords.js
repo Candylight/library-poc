@@ -1,10 +1,9 @@
 exports.settings = {
-    'text': 'Select some keywords',
+    'text': 'Select a keyword',
     'attachments': [
         {
             'fallback': 'Something is wrong with me. Please contact a human :(',
             'callback_id': 'keywords',
-            'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': [
                 {
@@ -13,7 +12,8 @@ exports.settings = {
                     'type': 'select',
                     'options': [],
                 },
-            ]
+            ],
+            'color': '#90dfaa'
         }
     ]
 };

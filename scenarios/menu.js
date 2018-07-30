@@ -3,7 +3,7 @@ exports.settings = {
         {
             'fallback': 'Something is wrong with me. Please contact a human :(',
             'callback_id': 'menu',
-            'color': '#3AA3E3',
+            'color': '#90dfaa',
             'attachment_type': 'default',
             'actions': [
                 {

@@ -33,7 +33,7 @@ exports.searchByKeywords = async function (args) {
                 if (resource.categories.includes(selectedKeyword)) {
                     const resourceType = database.findTypesBy('id', resource.type)[0].name
                     if (resource.url !== undefined) {
-                        return `${resource.url} - ${resourceType}`
+                        return ` Type of resource: *${resourceType}* | ${resource.url} added by <@${resource.user}>`
                     }
                 }
             })
@@ -53,10 +53,10 @@ exports.searchByKeywords = async function (args) {
             });
         });
 
-
+    const selectedKeywordName = database.findCategoriesBy('id', selectedKeyword)[0].name;
 
     scenario[nextStep].settings.attachments[0].actions[0].options = keywords;
-    scenario[nextStep].settings.text = `Select some keywords:\n${message}`
+    scenario[nextStep].settings.text = `Resource(s) for keyword \`${selectedKeywordName}\`:\n${message}`
 
     return scenario[nextStep].settings;
 };
